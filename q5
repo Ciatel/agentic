@@ -1,0 +1,34 @@
+from typing import TypedDict
+from IPython.display import Image, display
+from langgraph.graph import END, START, StateGraph
+
+
+class FinanceState(TypedDict):
+    question: str
+    symbol: str
+    price: float
+    answer: str
+
+
+def find_symbol(state):
+    text = state["question"].upper()
+    symbol = next((s for s in ["AAPL", "TSLA", "MSFT"] if s in text), "UNKNOWN")
+    return {"symbol": symbol}
+
+
+def find_price(state):
+    prices = {"AAPL": 195.5, "TSLA": 180.25, "MSFT": 420.1, "UNKNOWN": 0}
+    return {"price": prices[state["symbol"]]}
+
+
+def reply(state):
+    return {"answer": f"{state['symbol']} price: ${state['price']:.2f}"}
+
+
+graph = StateGraph(FinanceState)
+graph.add_sequence([find_symbol, find_price, reply])
+graph.add_edge(START, "find_symbol")
+graph.add_edge("reply", END)
+bot = graph.compile()
+display(Image(bot.get_graph().draw_mermaid_png()))
+print(bot.invoke({"question": "Price of MSFT?"})["answer"])
