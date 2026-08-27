@@ -1,0 +1,17 @@
+import os
+from agno.agent import Agent
+from agno.models.groq import Groq
+from agno.tools.yfinance import YFinanceTools
+
+os.environ["GROQ_API_KEY"] = "gsk_..."
+
+MODEL = "openai/gpt-oss-20b"
+
+agent = Agent(
+    model=Groq(id=MODEL),
+    tools=[YFinanceTools(enable_stock_price=True, enable_company_info=True)],
+    instructions="Give a short report with price, company details and a conclusion.",
+    markdown=True,
+)
+
+agent.print_response("Generate an NVIDIA (NVDA) report.")
