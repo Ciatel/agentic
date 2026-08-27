@@ -1,0 +1,27 @@
+%pip install -q langserve langchain-core langchain-groq
+
+import asyncio
+import uvicorn
+
+from fastapi import FastAPI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+from langserve import add_routes
+
+prompt = ChatPromptTemplate.from_template("Answer briefly: {question}")
+chain = prompt | ChatGroq(model=MODEL) | StrOutputParser()
+
+app = FastAPI(title="Agentic AI API")
+add_routes(app, chain, path="/chat")
+
+# Start Uvicorn in the notebook background
+config = uvicorn.Config(
+    app,
+    host="127.0.0.1",
+    port=8000,
+    log_level="warning",
+)
+
+server = uvicorn.Server(config)
+server_task = asyncio.create_task(server.serve())
