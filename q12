@@ -1,0 +1,12 @@
+from langchain_groq import ChatGroq
+from langchain_core.tracers import LangChainTracer
+
+llm = ChatGroq(model=MODEL)
+tracer = LangChainTracer(project_name="agentic-ai-lab")
+
+response = llm.invoke(
+    "Explain Agentic AI in two sentences.",
+    config={"callbacks": [tracer]}
+)
+
+print(response.content)
