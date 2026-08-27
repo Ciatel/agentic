@@ -1,0 +1,35 @@
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+
+llm = ChatGroq(model=MODEL)
+generate = ChatPromptTemplate.from_template(
+    "Write only Python code for this task: {task}"
+) | llm | StrOutputParser()
+repair = ChatPromptTemplate.from_template(
+    "Fix this Python code. Return code only.\nCode:\n{code}\nError:\n{error}"
+) | llm | StrOutputParser()
+
+
+def clean(code):
+    return code.replace("```python", "").replace("```", "").strip()
+
+
+def run(code):
+    path = Path(tempfile.gettempdir()) / "agent_answer.py"
+    path.write_text(code)
+    return subprocess.run([sys.executable, str(path)], capture_output=True, text=True)
+
+
+code = clean(generate.invoke({"task": "Print the factorial of 5."}))
+for attempt in range(3):
+    result = run(code)
+    if result.returncode == 0:
+        print(result.stdout)
+        break
+    code = clean(repair.invoke({"code": code, "error": result.stderr}))
