@@ -1,0 +1,10 @@
+from agno.agent import Agent as PhiAgent
+from agno.models.groq import Groq as PhiGroq
+
+sales = "Laptop: revenue 110000, profit 22000\nMobile: revenue 95000, profit 19000"
+analyst = PhiAgent(
+    model=PhiGroq(id=MODEL),
+    instructions="Analyze the data, show the calculation, then give one insight.",
+)
+result = analyst.run(f"Which product has higher revenue?\n{sales}")
+print(result.content)
