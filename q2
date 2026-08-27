@@ -1,0 +1,39 @@
+import os
+
+from groq import Groq
+
+client = Groq()  # reads GROQ_API_KEY
+MODEL = "openai/gpt-oss-20b"
+
+
+def ask(prompt):
+    reply = client.chat.completions.create(
+        model=MODEL,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return reply.choices[0].message.content
+
+# a)
+answer = ask("Explain Agentic AI in one sentence.")
+improved = ask(f"Review and improve this answer for a beginner:\n{answer}")
+print("First answer:", answer)
+print("Improved answer:", improved)
+
+#b) 
+plan = ask("Create a numbered step-by-step plan to organize a college technical fest.")
+print(plan)
+
+#c) 
+print(ask("Solve 25 * 18 using exactly: Thought, Action, Observation, Final Answer."))
+
+#d) 
+research = ask("Research agent: Give three facts about Agentic AI.")
+report = ask(f"Writer agent: Turn these facts into a short report:\n{research}")
+final = ask(f"Reviewer agent: Correct and improve this report:\n{report}")
+print(final)
+
+#e)
+plan = ask("Planner: Make a plan for a report on AI. Do not write the report.")
+result = ask(f"Executor: Follow this plan and write the report:\n{plan}")
+print("Plan:\n", plan)
+print("Result:\n", result)
