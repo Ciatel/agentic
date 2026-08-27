@@ -1,0 +1,42 @@
+from typing import TypedDict
+from langgraph.graph import StateGraph, END
+from IPython.display import Image, display
+
+
+class SupportState(TypedDict):
+    query: str
+    category: str
+    answer: str
+
+
+def router(state):
+    text = state["query"].lower()
+    category = "complaint" if "damaged" in text else "order" if "order" in text else "faq"
+    return {"category": category}
+
+
+def faq(state):
+    return {"answer": "Please see our FAQ page."}
+
+
+def order(state):
+    return {"answer": "Please provide your order ID."}
+
+
+def complaint(state):
+    return {"answer": "Sorry about that. We will arrange a replacement."}
+
+
+graph = StateGraph(SupportState)
+for node in [router, faq, order, complaint]:
+    graph.add_node(node.__name__, node)
+graph.set_entry_point("router")
+graph.add_conditional_edges("router", lambda s: s["category"])
+for node in ["faq", "order", "complaint"]:
+    graph.add_edge(node, END)
+    
+support_bot = graph.compile()
+
+display(Image(support_bot.get_graph().draw_mermaid_png()))
+
+print(support_bot.invoke({"query": "My item is damaged"})["answer"])
