@@ -1,0 +1,17 @@
+import cohere
+
+co = cohere.ClientV2()  # reads COHERE_API_KEY
+documents = [
+    "Indian EV demand is led by two-wheelers and urban mobility.",
+    "High battery cost and few charging stations slow EV adoption.",
+    "Tata, Ola, Ather and Mahindra are major EV competitors.",
+]
+query = "Give a short market report on electric vehicles in India."
+
+ranked = co.rerank(model="rerank-v3.5", query=query, documents=documents, top_n=2)
+context = "\n".join(documents[item.index] for item in ranked.results)
+response = co.chat(
+    model="command-a-03-2025",
+    messages=[{"role": "user", "content": f"{query}\nUse only:\n{context}"}],
+)
+print(response.message.content[0].text)
