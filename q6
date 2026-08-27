@@ -1,0 +1,19 @@
+from llama_index.core import Document, Settings, VectorStoreIndex
+from llama_index.core.embeddings import MockEmbedding
+from llama_index.llms.openai_like import OpenAILike
+
+sales = """Product Revenue Profit
+Laptop 110000 22000
+Mobile 95000 19000
+Tablet 25000 4000"""
+
+Settings.llm = OpenAILike(
+    model=MODEL,
+    api_base="https://api.groq.com/openai/v1",
+    api_key=os.environ["GROQ_API_KEY"],
+    is_chat_model=True,
+)
+Settings.embed_model = MockEmbedding(embed_dim=8)
+index = VectorStoreIndex.from_documents([Document(text=sales)])
+answer = index.as_query_engine().query("Which product has the highest revenue?")
+print(answer)
